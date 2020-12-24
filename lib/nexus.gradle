@@ -1,0 +1,66 @@
+
+localRepoUrl=http://nexus.local:63987
+localRepoUser=Sabad
+localRepoPass=4daQvR546T2A
+
+farayanRepoUrl=http://nexus.farayan.net:63987
+farayanRepoUser=Homayoun
+farayanRepoPass=p3h5XM82gb9Z
+
+afterEvaluate {
+    publishing {
+        publications {
+            snapshot(MavenPublication) {
+                from components.release
+                groupId = "farayan.common.components"
+                artifactId = "number-entry"
+                version = project.versionName
+            }
+        }
+
+        repositories {
+            maven {
+                credentials {
+                    username = project.localRepoUser
+                    password = project.localRepoPass
+                }
+
+                if(project.versionName.endsWith('-SNAPSHOT')) {
+                    url "${localRepoUrl}/repository/maven-snapshots/"
+                } else {
+                    url "${localRepoUrl}/repository/maven-releases/"
+                }
+            }
+            maven {
+                credentials {
+                    username = project.farayanRepoUser
+                    password = project.farayanRepoPass
+                }
+
+                if(project.versionName.endsWith('-SNAPSHOT')) {
+                    url "${farayanRepoUrl}/repository/maven-snapshots/"
+                } else {
+                    url "${farayanRepoUrl}/repository/maven-releases/"
+                }
+            }
+        }
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.groupId = "farayan.common.components"
+            pom.artifactId = "number-entry"
+            pom.version = project.versionName
+
+            repository(url: "${project.localRepoUrl}/repository/maven-releases") {
+                authentication(userName: project.localRepoUser, password: project.localRepoPass)
+            }
+
+            repository(url: "${project.farayanRepoUrl}/repository/maven-releases") {
+                authentication(userName: project.farayanRepoUser, password: project.farayanRepoPass)
+            }
+        }
+    }
+}
