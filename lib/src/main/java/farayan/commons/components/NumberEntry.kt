@@ -5,6 +5,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.widget.EditText
 import androidx.appcompat.widget.AppCompatEditText
@@ -173,7 +174,7 @@ class NumberEntry : AppCompatEditText {
                         .replace(localNumberProvider.decimalPoint(), ".")
                 number = fractionalFormatter.parse(plain)
                 val cp = editText.selectionStart
-                val grouped = (if (hasFractionalPart) fractionalFormatter else plainFormatter).format(number)
+                val grouped = format(number, plain);
                 val localized = localNumberProvider.localize(grouped);
                 editText.setText(localized)
                 val finishingLength: Int = editText.text.length
@@ -192,6 +193,38 @@ class NumberEntry : AppCompatEditText {
             // VERY IMPORTANT
             editText.addTextChangedListener(this)
             onChanged();
+        }
+
+        private fun format(number: Number?, plain: String): String {
+            Log.i("NumberEntry", "number: $number, plain: $plain")
+            //FarayanUtility.Log(true,true,true,"number: $number, plain: $plain")
+            val endingZerosCount = endingZerosCount(plain);
+            var grouped = (if (hasFractionalPart) fractionalFormatter else plainFormatter).format(number)
+            repeat(endingZerosCount) {
+                grouped += "0";
+            }
+
+            val fractionPartLength = NumberEntryUtility.decimalsCount(grouped);
+            if (fractionPartLength > decimalPrecision) {
+                val extrasLength = fractionPartLength - decimalPrecision;
+                grouped = grouped.substring(0, grouped.length - extrasLength);
+            }
+
+            return grouped;
+        }
+
+        private fun endingZerosCount(plain: String): Int {
+            if (plain.length < 2)
+                return 0;
+            if (!plain.contains("\\."))
+                return 0;
+            val globalized = localNumberProvider.globalize(plain);
+            var count = 0;
+            while (globalized.substring(0, globalized.length - count).endsWith("0")) {
+                count++;
+            }
+
+            return count;
         }
 
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}

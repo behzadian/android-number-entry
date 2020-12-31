@@ -14,7 +14,12 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 1
+
+        /**
+         * Supports typing numbers ends with zero fractions like 1.20
+         * Although returning  value wil not change and 1.2 will be returned
+         */
+        versionCode 2
         versionName versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
