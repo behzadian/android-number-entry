@@ -3,6 +3,7 @@ package farayan.commons.components
 import android.content.Context
 import android.text.Editable
 import android.text.InputType
+import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
@@ -67,6 +68,8 @@ class NumberEntry : AppCompatEditText {
         var formatted = formatter.format(value);
         if (formatted.contains(".") && formatted.endsWith("0"))
             formatted = formatted.trimEnd { c -> c == '0' }
+        if (formatted.endsWith("."))
+            formatted = formatted.trimEnd('.')
         return formatted;
     }
 
@@ -87,16 +90,28 @@ class NumberEntry : AppCompatEditText {
         return plain;
     }
 
+    var nullableNumber: Number?
+        get() = plainText().toDoubleOrNull();
+        set(value) {
+            fill(value);
+        }
+
+    var numberValue: Number
+        get() = plainText().toDoubleOrNull() ?: 0.0;
+        set(value) {
+            fill(value);
+        }
+
     var nullableDouble: Double?
         get() = plainText().toDoubleOrNull();
         set(value) {
-            setText(textual(value));
+            fill(value);
         }
 
     var doubleValue: Double
         get() = plainText().toDoubleOrNull() ?: 0.0;
         set(value) {
-            setText(textual(value));
+            fill(value);
         }
 
     fun getDoubleValue(defaultValue: Double): Double {
@@ -106,13 +121,13 @@ class NumberEntry : AppCompatEditText {
     var nullableLong: Long?
         get() = plainText().toLongOrNull();
         set(value) {
-            setText(textual(value));
+            fill(value);
         }
 
     var longValue: Long
         get() = plainText().toLongOrNull() ?: 0;
         set(value) {
-            setText(textual(value));
+            fill(value);
         }
 
     fun getLongValue(defaultValue: Long): Long {
@@ -122,13 +137,13 @@ class NumberEntry : AppCompatEditText {
     var nullableInt: Int?
         get() = plainText().toIntOrNull();
         set(value) {
-            setText(textual(value));
+            fill(value);
         }
 
     var intValue: Int
         get() = plainText().toIntOrNull() ?: 0;
         set(value) {
-            setText(textual(value));
+            fill(value);
         }
 
     fun getIntValue(defaultValue: Int): Int {
@@ -138,17 +153,23 @@ class NumberEntry : AppCompatEditText {
     var nullableFloat: Float?
         get() = plainText().toFloatOrNull();
         set(value) {
-            setText(textual(value));
+            fill(value);
         }
 
     var floatValue: Float
         get() = plainText().toFloatOrNull() ?: 0.0F;
         set(value) {
-            setText(textual(value));
+            fill(value);
         }
 
     fun getFloatValue(defaultValue: Float): Float {
         return nullableFloat ?: defaultValue;
+    }
+
+    private fun fill(value: Number?) {
+        val textual = textual(value);
+        setText(textual);
+        this.setSelection(text?.length ?: 0);
     }
 
     inner class NumberTextWatcher(
@@ -197,7 +218,6 @@ class NumberEntry : AppCompatEditText {
 
         private fun format(number: Number?, plain: String): String {
             Log.i("NumberEntry", "number: $number, plain: $plain")
-            //FarayanUtility.Log(true,true,true,"number: $number, plain: $plain")
             val endingZerosCount = endingZerosCount(plain);
             var grouped = (if (hasFractionalPart) fractionalFormatter else plainFormatter).format(number)
             repeat(endingZerosCount) {
@@ -248,6 +268,8 @@ class NumberEntry : AppCompatEditText {
     }
 
     private fun onChanged() {
+        onNumberValueChanged?.onChanged(numberValue);
+        onNullableNumberChanged?.onChanged(nullableNumber);
         onDoubleValueChanged?.onChanged(doubleValue);
         onNullableDoubleChanged?.onChanged(nullableDouble);
         onLongValueChanged?.onChanged(longValue);
@@ -262,6 +284,8 @@ class NumberEntry : AppCompatEditText {
         fun onChanged(number: TNumber);
     }
 
+    var onNumberValueChanged: IChangedEvent<Number>? = null;
+    var onNullableNumberChanged: IChangedEvent<Number?>? = null;
     var onDoubleValueChanged: IChangedEvent<Double>? = null;
     var onNullableDoubleChanged: IChangedEvent<Double?>? = null;
     var onLongValueChanged: IChangedEvent<Long>? = null;

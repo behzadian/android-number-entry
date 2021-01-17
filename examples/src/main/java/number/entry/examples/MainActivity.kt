@@ -14,6 +14,6 @@ class MainActivity : AppCompatActivity() {
         val SecondNumberEntry = findViewById<NumberEntry>(R.id.SecondNumberEntry);
         val consoleTextView = findViewById<TextView>(R.id.ConsoleTextView);
         FirstNumberEntry.doubleValue = 14.6001
-        SecondNumberEntry.doubleValue = 14.600
+        SecondNumberEntry.doubleValue = 14.0
     }
 }
