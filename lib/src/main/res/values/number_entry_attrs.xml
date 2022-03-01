@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="NumberEntry">
+        <attr name="group" format="boolean|reference" />
+        <attr name="decimalPrecision" format="integer|reference" />
+        <attr name="negativeSupported" format="boolean|reference" />
+        <attr name="localizeProviderClassName" format="string|reference" />
+    </declare-styleable>
+</resources>
